@@ -1,4 +1,5 @@
 import {markNodeData, objectAssign} from "@/el-virtual-tree/model/util";
+import {WRAPPER_PARENT_DEEP} from "@/el-virtual-tree/js/config";
 
 const getPropertyFromData = function (node, prop) {
   const props = node.store.props;
@@ -16,7 +17,16 @@ const getPropertyFromData = function (node, prop) {
 };
 
 class VirtualNode {
-  constructor(options) {}
+  constructor(options) {
+    this.expanded = false;
+    this.visible = true;
+
+    for (let name in options) {
+      if (Object.prototype.hasOwnProperty.call(options, name)) {
+        this[name] = options[name];
+      }
+    }
+  }
 
   setData(data) {
     if (!Array.isArray(data)) {
@@ -39,11 +49,11 @@ class VirtualNode {
   }
 
   /**
-   * el-tree的原始方法，根据tree.vue传入的props进行属性的提取
+   * el-tree的原始方法，根据tree.vue传入的props进行属性的children数据的获取
    */
   getChildren(forceInit = false) {
     // this is data
-    if (this.level === 0) return this.data;
+    if (this.level === WRAPPER_PARENT_DEEP) return this.data;
     const data = this.data;
     if (!data) return null;
 

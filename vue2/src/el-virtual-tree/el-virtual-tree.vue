@@ -50,8 +50,6 @@ export default {
   },
   data() {
     return {
-      store: null,
-      root: null,
       currentNode: null,
       treeItems: null,
       checkboxItems: [],
@@ -145,7 +143,7 @@ export default {
     // 将原始的树状数据转化为非响应式
     // 在原始树状基础上增加一些属性，包括level
 
-    // 用TreeStore进行数据的管理
+    // 用TreeStore进行数据的管理【非响应式数据】
     this.store = new VirtualTreeStore({
       key: this.nodeKey,
       data: this.data,
@@ -162,7 +160,7 @@ export default {
       filterNodeMethod: this.filterNodeMethod,
     });
 
-    // 每一个item包装成为一个Node.js，在原来的数据基础上增加新的属性，比如level等等，但是不改变原来的值
+    // 每一个item包装成为一个Node.js，在原来的数据基础上增加新的属性，比如level等等，但是不改变原来的值【非响应式数据】
     this.root = this.store.root;
   },
   mounted() {
@@ -170,10 +168,14 @@ export default {
     this.$el.addEventListener("keydown", this.handleKeydown);
     if (Array.isArray(this.data) && this.data.length > 0) {
       this.store.setData(this.data);
+      this.refreshVirtualList();
     }
   },
   beforeDestroy() {},
   methods: {
+    refreshVirtualList() {
+      this.virtualList = this.store.getVirtualListFromTreeData();
+    },
     initTabIndex() {
       // TODO 这个数据是用来干嘛的？？
     },
