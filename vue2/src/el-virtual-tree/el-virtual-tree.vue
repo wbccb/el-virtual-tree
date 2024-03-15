@@ -20,7 +20,14 @@
       v-slot="{item}"
       @resize="handleResize"
     >
-      <el-virtual-tree-node :item="item"></el-virtual-tree-node>
+      <el-virtual-tree-node
+        :node="item"
+        :props="props"
+        :render-after-expand="renderAfterExpand"
+        :show-checkbox="showCheckbox"
+        :key="getNodeKey(item)"
+        :render-content="renderContent"
+      ></el-virtual-tree-node>
     </RecycleScroller>
     <div class="el-tree__empty-block" v-if="!virtualList || virtualList.length === 0">
       <slot name="empty">
@@ -41,6 +48,7 @@ import {ITEM_HEIGHT, WRAPPER_PARENT_DEEP} from "./js/config.js";
 import {RecycleScroller} from "vue-virtual-scroller";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 import VirtualTreeStore from "@/el-virtual-tree/model/virtual-tree-store";
+import {getNodeKey} from "@/el-virtual-tree/model/util";
 
 export default {
   name: "ElVirtualTree",
@@ -173,6 +181,9 @@ export default {
   },
   beforeDestroy() {},
   methods: {
+    getNodeKey(node) {
+      return getNodeKey(this.nodeKey, node.data);
+    },
     refreshVirtualList() {
       this.virtualList = this.store.getVirtualListFromTreeData();
     },
