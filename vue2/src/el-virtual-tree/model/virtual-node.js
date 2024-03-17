@@ -73,8 +73,6 @@ class VirtualNode {
     }
   }
 
-  expand() {}
-
   /**
    * el-tree的原始方法，根据tree.vue传入的props进行属性的children数据的获取
    */
@@ -122,8 +120,6 @@ class VirtualNode {
       child = new VirtualNode(child);
     }
 
-    child.level = this.level + 1;
-
     if (typeof index === "undefined" || index < 0) {
       this.childNodes.push(child);
     } else {
@@ -138,6 +134,14 @@ class VirtualNode {
   }
 
   updateChildren() {}
+
+  collapse() {
+    this.expanded = false;
+  }
+
+  expand() {
+    this.expanded = true;
+  }
 
   get label() {
     return getPropertyFromData(this, "label");

@@ -105,12 +105,16 @@ export default {
   data() {
     return {
       tree: null,
-      expanded: false,
       childNodeRendered: false,
       oldChecked: null,
       oldIndeterminate: null,
       MARGIN_LEFT: MARGIN_LEFT,
     };
+  },
+  computed: {
+    expanded() {
+      return this.node ? this.node.expanded : false;
+    },
   },
   methods: {
     handleDragStart(event) {
@@ -129,7 +133,9 @@ export default {
     handleExpandIconClick() {
       if (this.node.isLeaf) return;
 
-      this.$emit("handleExpandIconClick", this.expanded);
+      const currentExpanded = !this.node.expanded;
+
+      this.$emit("handleExpandIconClick", currentExpanded);
     },
     handleCheckChange(value, ev) {
       this.$emit("handleCheckChange", value, ev);

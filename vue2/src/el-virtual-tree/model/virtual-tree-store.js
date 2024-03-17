@@ -11,6 +11,9 @@ class VirtualTreeStore {
 
     this.nodesMap = {};
 
+    // TODO 测试expand
+    this.defaultExpandAll = true;
+
     // this.root的data才是整个数据，因此level为0
     this.root = new VirtualNode({
       data: options.data,
@@ -69,8 +72,20 @@ class VirtualTreeStore {
     const key = this.key;
     if (!key || !node || !node.data) return;
 
-    const nodeKey = node.key;
-    if (nodeKey !== undefined) this.nodesMap[node.key] = node;
+    const nodeKey = node[key];
+    if (nodeKey !== undefined) this.nodesMap[nodeKey] = node;
+  }
+
+  updateNodeExpanded(node, currentExpanded) {
+    // const rootArray = this.root.childNodes;
+    // const key = this.key;
+    // const nodeKey = node[key];
+    // const storeNode = this.nodesMap[nodeKey];
+    if (currentExpanded) {
+      node.expand();
+    } else {
+      node.collapse();
+    }
   }
 }
 export default VirtualTreeStore;
