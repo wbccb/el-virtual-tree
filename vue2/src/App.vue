@@ -1,18 +1,20 @@
 <template>
   <div id="app">
     <el-input v-model="filterName" placeholder="进行名称筛选" />
-    <!--    <el-virtual-tree-->
-    <!--      ref="tree"-->
-    <!--      :data="mockData"-->
-    <!--      :props="treeProps"-->
-    <!--      :filter-node-method="filterNode"-->
-    <!--      :highlight-color="'#f43c3c'"-->
-    <!--    ></el-virtual-tree>-->
+    <el-virtual-tree
+      ref="tree"
+      :data="mockData"
+      :props="treeProps"
+      :node-key="'id'"
+      :filter-node-method="filterNode"
+      :highlight-color="'#f43c3c'"
+    ></el-virtual-tree>
   </div>
 </template>
 
 <script>
-import { mockData } from "@/mock/originTreeData";
+import {mockData} from "@/mock/originTreeData";
+import ElVirtualTree from "@/el-virtual-tree/el-virtual-tree.vue";
 
 export default {
   name: "App",
@@ -39,7 +41,9 @@ export default {
       },
     };
   },
-  components: {},
+  components: {
+    ElVirtualTree,
+  },
   watch: {
     filterName(val) {
       // 1. 只显示筛选的文本，其它不可见

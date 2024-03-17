@@ -16,7 +16,7 @@
     :aria-expanded="expanded"
     :aria-disabled="node.disabled"
     :aria-checked="node.checked"
-    :draggable="tree.draggable"
+    :draggable="draggable"
     @dragstart.stop="handleDragStart"
     @dragover.stop="handleDragOver"
     @dragend.stop="handleDragEnd"
@@ -25,14 +25,14 @@
   >
     <div
       class="el-tree-node__content"
-      :style="{'padding-left': (node.level - 1) * tree.indent + 'px'}"
+      :style="{'padding-left': (node.level - 1) * MARGIN_LEFT + 'px'}"
     >
       <span
         @click.stop="handleExpandIconClick"
         :class="[
           {'is-leaf': node.isLeaf, expanded: !node.isLeaf && expanded},
           'el-tree-node__expand-icon',
-          tree.iconClass ? tree.iconClass : 'el-icon-caret-right',
+          iconClass ? iconClass : 'el-icon-caret-right',
         ]"
       ></span>
       <el-checkbox
@@ -50,13 +50,13 @@
 </template>
 
 <script>
+import {MARGIN_LEFT} from "@/el-virtual-tree/js/config";
 export default {
   name: "ElVirtualTreeNode",
   props: {
     node: {
-      default() {
-        return {};
-      },
+      type: Object,
+      required: true,
     },
     props: {},
     renderContent: Function,
@@ -68,6 +68,11 @@ export default {
       type: Boolean,
       default: false,
     },
+    draggable: {
+      type: Boolean,
+      default: false,
+    },
+    iconClass: String,
   },
 
   components: {
@@ -78,19 +83,19 @@ export default {
         },
       },
       render(h) {
-        const parent = this.$parent;
-        const tree = parent.tree;
+        // TODO 这边有问题
+        const data = this.node.data;
+        const store = this.node.store;
         const node = this.node;
-        const {data, store} = node;
-        return parent.renderContent ? (
-          parent.renderContent.call(parent._renderProxy, h, {
-            _self: tree.$vnode.context,
+        return this.renderContent ? (
+          this.renderContent.call(this._renderProxy, h, {
+            _self: this.$vnode.context,
             node,
             data,
             store,
           })
-        ) : tree.$scopedSlots.default ? (
-          tree.$scopedSlots.default({node, data})
+        ) : this.$scopedSlots.default ? (
+          this.$scopedSlots.default({node, data})
         ) : (
           <span class="el-tree-node__label">{node.label}</span>
         );
@@ -104,6 +109,7 @@ export default {
       childNodeRendered: false,
       oldChecked: null,
       oldIndeterminate: null,
+      MARGIN_LEFT: MARGIN_LEFT,
     };
   },
   methods: {
@@ -114,7 +120,7 @@ export default {
       this.$emit("handleDragOver", event);
     },
     handleDragEnd(event) {
-      if (!this.tree.draggable) return;
+      if (!this.draggable) return;
       this.$emit("handleDragEnd", event);
     },
     handleDrop(event) {
@@ -135,39 +141,6 @@ export default {
       this.$emit("handleContextMenu");
     },
   },
-  created() {
-    const parent = this.$parent;
-
-    if (parent.isTree) {
-      this.tree = parent;
-    } else {
-      this.tree = parent.tree;
-    }
-
-    const tree = this.tree;
-    if (!tree) {
-      console.warn("Can not find node's tree.");
-    }
-
-    const props = tree.props || {};
-    const childrenKey = props["children"] || "children";
-
-    this.$watch(`node.data.${childrenKey}`, () => {
-      this.node.updateChildren();
-    });
-
-    if (this.node.expanded) {
-      this.expanded = true;
-      this.childNodeRendered = true;
-    }
-
-    if (this.tree.accordion) {
-      this.$on("tree-node-expand", (node) => {
-        if (this.node !== node) {
-          this.node.collapse();
-        }
-      });
-    }
-  },
+  created() {},
 };
 </script>

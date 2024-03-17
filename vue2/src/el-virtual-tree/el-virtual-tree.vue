@@ -44,7 +44,7 @@
 
 <script>
 import ElVirtualTreeNode from "./el-virtual-tree-node.vue";
-import {ITEM_HEIGHT, WRAPPER_PARENT_DEEP} from "./js/config.js";
+import {ITEM_HEIGHT} from "./js/config.js";
 import {RecycleScroller} from "vue-virtual-scroller";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
 import VirtualTreeStore from "@/el-virtual-tree/model/virtual-tree-store";
@@ -148,6 +148,7 @@ export default {
     },
   },
   created() {
+    this.isTree = true;
     // 将原始的树状数据转化为非响应式
     // 在原始树状基础上增加一些属性，包括level
 
@@ -174,10 +175,15 @@ export default {
   mounted() {
     this.initTabIndex();
     this.$el.addEventListener("keydown", this.handleKeydown);
-    if (Array.isArray(this.data) && this.data.length > 0) {
-      this.store.setData(this.data);
-      this.refreshVirtualList();
-    }
+    // if (Array.isArray(this.data) && this.data.length > 0) {
+    // debugger;
+    // this.store.setData(this.data);
+    // this.refreshVirtualList();
+    // }
+
+    // created()的this.store初始化时会进行this.root.setData()
+    // 但是虚拟列表还需要一次数据的筛选，因此这里需要主动触发一次refreshVirtualList()
+    this.refreshVirtualList();
   },
   beforeDestroy() {},
   methods: {
@@ -186,6 +192,7 @@ export default {
     },
     refreshVirtualList() {
       this.virtualList = this.store.getVirtualListFromTreeData();
+      console.warn("this.virtualList", this.virtualList);
     },
     initTabIndex() {
       // TODO 这个数据是用来干嘛的？？

@@ -16,16 +16,41 @@ const getPropertyFromData = function (node, prop) {
   }
 };
 
+let nodeIdSeed = 0;
+
 class VirtualNode {
   constructor(options) {
+    this.id = nodeIdSeed++;
     this.expanded = false;
     this.visible = true;
+    this.parent = null;
 
     for (let name in options) {
       if (Object.prototype.hasOwnProperty.call(options, name)) {
         this[name] = options[name];
       }
     }
+
+    const store = this.store;
+    this.level = WRAPPER_PARENT_DEEP;
+    // 最外层是一个空的数据，level为0，为this.root
+    // 然后就是第一个元素，level为1，从this.root之后的children开始，都会将parent传入
+    if (this.parent) {
+      this.level = this.parent.level + 1;
+    }
+    store.registerNode(this);
+
+    if (store.lazy !== true && this.data) {
+      this.setData(this.data);
+
+      if (store.defaultExpandAll) {
+        this.expanded = true;
+      }
+    } else if (this.level > WRAPPER_PARENT_DEEP && store.lazy && store.defaultExpandAll) {
+      this.expand();
+    }
+
+    // this.label不会触发get()方法？
   }
 
   setData(data) {
@@ -37,7 +62,7 @@ class VirtualNode {
     this.childNodes = [];
 
     let children;
-    if (this.level === 0 && this.data instanceof Array) {
+    if (this.level === WRAPPER_PARENT_DEEP && this.data instanceof Array) {
       children = this.data;
     } else {
       children = getPropertyFromData(this, "children") || [];
@@ -47,6 +72,8 @@ class VirtualNode {
       this.insertChild({data: children[i]});
     }
   }
+
+  expand() {}
 
   /**
    * el-tree的原始方法，根据tree.vue传入的props进行属性的children数据的获取
@@ -77,7 +104,7 @@ class VirtualNode {
   insertChild(child, index, batch) {
     if (!child) throw new Error("insertChild error: child is required.");
 
-    if (!(child instanceof Node)) {
+    if (!(child instanceof VirtualNode)) {
       if (!batch) {
         const children = this.getChildren(true) || [];
         if (children.indexOf(child.data) === -1) {
@@ -111,6 +138,10 @@ class VirtualNode {
   }
 
   updateChildren() {}
+
+  get label() {
+    return getPropertyFromData(this, "label");
+  }
 }
 
 export default VirtualNode;
