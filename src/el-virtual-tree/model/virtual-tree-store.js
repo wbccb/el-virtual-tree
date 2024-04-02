@@ -122,5 +122,52 @@ class VirtualTreeStore {
 
     traverse(this);
   }
+
+  /**
+   * 实际的逻辑执行方法，下面多个方法都会触发该方法
+   */
+  _setCheckedKeys(key, leafOnly = false, checkedKeys) {
+    const allNodes = this._getAllNodes().sort((a, b) => b.level - a.level);
+    const cache = Object.create(null);
+    const keys = Object.keys(checkedKeys);
+    allNodes.forEach((node) => node.setChecked(false, false));
+
+    for (let i = 0, j = allNodes.length; i < j; i++) {
+      const node = allNodes[i];
+      const nodeKey = node.data[key].toString();
+      let checked = keys.indexOf(nodeKey) > -1;
+      if (!checked) {
+        // 如果
+        if (node.checked && !cache[nodeKey]) {
+          node.setChecked(false, false);
+        }
+        continue;
+      }
+    }
+  }
+
+  // ----------------------- 下面是根据key去进行勾选的逻辑方法 -----------------------
+
+  setCheckedNodes(arary, leafOnly = false) {}
+
+  setCheckedKeys(keys, leafOnly = false) {}
+
+  setDefaultExpandedKeys(key) {}
+
+  setChecked(data, checked, deep) {}
+
+  // ----------------------- 下面是get()相关的方法 -----------------------
+  getCheckedNodes(leafOnly = false, includeHalfChecked = false) {}
+
+  _getAllNodes() {
+    const allNodes = [];
+    const nodesMap = this.nodesMap;
+    for (let nodeKey in nodesMap) {
+      if (Object.prototype.hasOwnProperty.call(nodesMap, nodeKey)) {
+        allNodes.push(nodesMap[nodeKey]);
+      }
+    }
+    return allNodes;
+  }
 }
 export default VirtualTreeStore;
